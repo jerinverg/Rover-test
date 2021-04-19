@@ -7,13 +7,15 @@ import java.util.Scanner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.mars.model.Program;
+import com.mars.to.InstructionsTO;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -21,40 +23,92 @@ import org.springframework.web.multipart.MultipartFile;
 public class roversContollers {
 
 	private static final Log LOG = LogFactory.getLog(roversContollers.class);
-
-	@RequestMapping(value = "/guardar/{canal}/{firmaCanal}/{id}", method = RequestMethod.GET, produces = "application/json")
-	public String doGuardar(@PathVariable String canal, @PathVariable String firmaCanal, @PathVariable String id) {
-
-		LOG.info("ESTO ES UNA PRUEBA " + canal + "firmaCanal " + firmaCanal);
-
-		return "POSITIVO";
-	}
+	private String dimensions;
+	private String roverInformation;
+	private String roverMove;
 
 	@SuppressWarnings("resource")
 	@PostMapping("/doUploadFile")
-	public String doUploadFile(@RequestParam("file") MultipartFile file) {
+	public ArrayList<String> doUploadFile(@RequestParam("file") MultipartFile file) {
 		File data = null;
+		Program program;
+		Scanner scan;
 		String txtName = file.getOriginalFilename();
 		String prefix = txtName.substring(txtName.lastIndexOf("."));
 		try {
-			ArrayList<String> dataList = new ArrayList<String>();
 			data = File.createTempFile(txtName, prefix);
 			file.transferTo(data);
-			Scanner scan = new Scanner(data);
-
+			program = new Program();
+			scan = new Scanner(data);
 			while (scan.hasNextLine()) {
-				dataList.add(scan.nextLine());
+
+				setDimensions(scan.nextLine());
+				setRoverInformation(scan.nextLine());
+				setRoverMove(scan.nextLine());
+
 			}
+			ArrayList<String> result =  program.releaseRover(getDimensions(), getRoverInformation(), getRoverMove());
 
-			LOG.info("ESTO ES UNA PRUEBA " + dataList);
+			LOG.info("ESTO ES UNA PRUEBA "+ result);
 
-			return null; // scan.nextLine();
+			return result; // scan.nextLine();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			LOG.error(e);
 		}
 		return null;
+	}
+	
+	@PostMapping("/doUploadData")
+	public ArrayList<String> doUploadData( @RequestBody InstructionsTO instructionsTO) {
+		
+		Program program;
+
+		try {
+			
+			program = new Program();
+		
+			ArrayList<String> result =  program.releaseRover(instructionsTO.getPlateau(), instructionsTO.getDropInfo(), instructionsTO.getInstructions());
+
+			return  result; 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			LOG.error(e);
+		}
+		return null;
+	}
+	
+	
+	
+	
+	
+	
+	
+
+	public String getDimensions() {
+		return dimensions;
+	}
+
+	public void setDimensions(String dimensions) {
+		this.dimensions = dimensions;
+	}
+
+	public String getRoverInformation() {
+		return roverInformation;
+	}
+
+	public void setRoverInformation(String roverInformation) {
+		this.roverInformation = roverInformation;
+	}
+
+	public String getRoverMove() {
+		return roverMove;
+	}
+
+	public void setRoverMove(String roverMove) {
+		this.roverMove = roverMove;
 	}
 
 }

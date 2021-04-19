@@ -1,51 +1,49 @@
 package com.mars.model;
-import java.util.Scanner;
 
+import java.util.ArrayList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.mars.controllers.roversContollers;
 import com.mars.enumerate.Instruction;
 import com.mars.utils.Instructions;
 import com.mars.utils.Plateau;
 import com.mars.utils.Rover;
 
-import static java.lang.System.in;
-import static java.lang.System.out;
 
 public class Program {
 
-	public static void main(String[] args) {
-		Scanner scanner = new Scanner(in);
+	private static final Log LOG = LogFactory.getLog(roversContollers.class);
+
+	public ArrayList<String> releaseRover(String dimensions, String roverInformation, String roverMove) {
 		
-		out.print("Enter dimensions of the plateau (in the form x y):");
-		String dimensions = scanner.nextLine();
+		ArrayList<String> dataList = new ArrayList<String>();
+
 		Plateau plateau = createPlateauFromDimensions(dimensions);
-		
+
 		int i = 0;
 		while (true) {
 			i++;
-			
+
 			String name = "Rover " + i;
-			out.print("Enter drop information for " + name + " (in the form x y h):");
-			String dropInfo = scanner.nextLine();
 
 			try {
-				Rover rover = dropRover(name, plateau, dropInfo);
-				out.println("Report: " + rover.reportStatus());
+				Rover rover = dropRover(name, plateau, roverInformation);
 
-				out.print("Enter instructions for " + name + " (in the form LMRMMMLMM):");
-				String instructions = scanner.nextLine();
-
-				Instruction[] instructionsCollection = new Instructions(instructions).getInstructions();
+				Instruction[] instructionsCollection = new Instructions(roverMove).getInstructions();
 				rover.processInstructions(instructionsCollection);
-				out.println("Report: " + rover.reportStatus());
+				dataList.add(rover.reportStatus());
+				return dataList;
 			} catch (Exception ex) {
-				out.println(ex.getMessage());
+				LOG.error(ex);
 			}
 		}
-		
+
 	}
-	
+
 	private static Rover dropRover(String id, Plateau plateau, String dropInfo) {
 		Rover rover = new Rover(id);
-		rover.dropRover(plateau,  dropInfo);
+		rover.dropRover(plateau, dropInfo);
 		return rover;
 	}
 
