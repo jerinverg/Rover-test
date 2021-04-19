@@ -17,8 +17,10 @@ The folder structure contains the source code
 This solution was created using REST as backend:
 
 ------------------------------------------------------------------------------------------------------------------
-route
+route:
+
 ..../rover/doUploadFile => this is for a upload a .txt File
+
 ..../rover/doUploadData => this is for a load dada by a JSON
 
 First was created a class called "roversContollers" this class does is expose all route to received the data to move de Rovers,
